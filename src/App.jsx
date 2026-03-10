@@ -4,9 +4,8 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import { Route, Routes } from 'react-router-dom'
 import Home from './belajar-react/pages/Home'
-import Product from './belajar-react/pages/Prodoct'
-import Biodata from './belajar-react/pages/Biodata'
-import Data from './belajar-react/pages/Data'
+import Catatan from './belajar-react/pages/Catatan'
+
 
 export default function App() {
   return (
@@ -14,10 +13,8 @@ export default function App() {
 
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/Product" element={<Product />} />
-        <Route path="/Biodata" element={<Biodata />} />
-        <Route path="/Data" element={<Data />} />
+        <Route path="/Catatan" element={<Catatan/>} />
       </Routes>
-  );
+  ); 
 }
 
