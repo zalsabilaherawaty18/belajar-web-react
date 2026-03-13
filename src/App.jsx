@@ -7,6 +7,7 @@ import Home from "./belajar-react/pages/Home";
 import Catatan from "./belajar-react/pages/Catatan";
 import Motion from "./belajar-react/pages/Motion";
 import UseState from "./belajar-react/pages/UseState";
+import DataUser from "./belajar-react/pages/dataUser";
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
       <Route path="/Catatan" element={<Catatan />} />
       <Route path="/Motion" element={<Motion />} />
       <Route path="/UseState" element={<UseState />} />
+      <Route path="/dataUser" element={<DataUser />} />
     </Routes>
   );
 }
