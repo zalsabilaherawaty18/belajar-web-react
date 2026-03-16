@@ -211,7 +211,7 @@ function Home() {
             whileHover={{ scale: 1.07 }}
             className="bg-teal-100/70 backdrop-blur-md p-8 rounded-2xl text-center hover:shadow-xl transition"
           >
-            <div className="text-5xl mb-3">👤</div>
+            <div className="text-4xl mb-3">👤</div>
             <h3 className="font-semibold text-lg mb-2">Profil</h3>
             <p className="text-sm text-gray-600">
               Informasi data diri pengguna.
