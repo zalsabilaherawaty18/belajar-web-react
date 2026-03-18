@@ -1,11 +1,10 @@
-import { useState } from "react"
-import { motion } from "framer-motion"
+import { useState } from "react";
+import { motion } from "framer-motion";
 
 export default function DarkModeToggle({ darkMode, setDarkMode }) {
-
   const toggleSwitch = () => {
-    setDarkMode(!darkMode)
-  }
+    setDarkMode(!darkMode);
+  };
 
   return (
     <button
@@ -19,7 +18,7 @@ export default function DarkModeToggle({ darkMode, setDarkMode }) {
         display: "flex",
         alignItems: "center",
         padding: 5,
-        justifyContent: darkMode ? "flex-end" : "flex-start"
+        justifyContent: darkMode ? "flex-end" : "flex-start",
       }}
     >
       <motion.div
@@ -27,15 +26,15 @@ export default function DarkModeToggle({ darkMode, setDarkMode }) {
         transition={{
           type: "spring",
           stiffness: 700,
-          damping: 30
+          damping: 30,
         }}
         style={{
           width: 30,
           height: 30,
           backgroundColor: darkMode ? "#facc15" : "#6366f1",
-          borderRadius: "50%"
+          borderRadius: "50%",
         }}
       />
     </button>
-  )
+  );
 }

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
 import { motion, useScroll } from "framer-motion";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import DarkModeToggle from "../components/DarkModeToggle";
 
 function Home() {

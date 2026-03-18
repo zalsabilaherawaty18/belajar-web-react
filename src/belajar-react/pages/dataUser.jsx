@@ -1,34 +1,178 @@
-import { useEffect, useState } from "react";
+import { Component, useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
+import DataUserStyale from "../components/DataUserStyale";
+import FilterSort from "../components/Component-FilterSort";
+import SearchBar from "../components/Component-SearchBar";
+import ProductForm from "../components/Component-ProductForm";
 
 export default function DataUser() {
-  const [carts, setCarts] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchCarts = async () => {
+  const [search, setSearch] = useState("");
+  const [limit] = useState(10);
+  const [skip, setSkip] = useState(0);
+
+  const [sortBy, setSortBy] = useState("");
+  const [order, setOrder] = useState("asc");
+
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+
+  // 🔥 state untuk ADD PRODUCT
+  const [title, setTitle] = useState("");
+  const [price, setPrice] = useState("");
+
+  // ✅ pagination
+  const handleNext = () => setSkip(skip + limit);
+  const handlePrev = () => setSkip(skip - limit);
+
+  // ✅ FETCH PRODUCTS
+  const fetchProducts = async () => {
     try {
-      const response = await axios.get("https://dummyjson.com/carts");
-      setCarts(response.data.carts);
-    } catch (error) {
-      console.log(error);
+      setLoading(true);
+
+      let url = "";
+
+      if (search) {
+        url = `https://dummyjson.com/products/search?q=${search}&limit=${limit}&skip=${skip}`;
+      } else if (selectedCategory) {
+        url = `https://dummyjson.com/products/category/${selectedCategory}?limit=${limit}&skip=${skip}`;
+      } else {
+        url = `https://dummyjson.com/products?limit=${limit}&skip=${skip}&select=title,price,thumbnail  `;
+      }
+
+      if (sortBy) {
+        url += `&sortBy=${sortBy}&order=${order}`;
+      }
+
+      const res = await axios.get(url);
+      setProducts(res.data.products);
+    } catch (err) {
+      console.log(err);
     } finally {
       setLoading(false);
     }
   };
 
+  // ✅ FETCH CATEGORIES (sekali saja)
+  const fetchCategories = async () => {
+    try {
+      const res = await axios.get(
+        "https://dummyjson.com/products/category-list"
+      );
+      setCategories(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  // 🔥 ADD PRODUCT
+  const addProduct = async () => {
+    if (!title || !price) {
+      alert("Isi dulu title & price!");
+      return;
+    }
+
+    try {
+      const res = await axios.post("https://dummyjson.com/products/add", {
+        title,
+        price: Number(price),
+      });
+
+      console.log("Produk baru:", res.data);
+
+      // ❗ biar langsung tampil di UI
+      setProducts((prev) => [res.data, ...prev]);
+
+      setTitle("");
+      setPrice("");
+
+      alert("Produk berhasil ditambahkan!");
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  // ✏️ UPDATE PRODUCT
+  const updateProduct = async (id) => {
+    try {
+      const res = await axios.put(`https://dummyjson.com/products/${id}`, {
+        title: "Updated Product 🔥",
+      });
+
+      console.log("Update:", res.data);
+
+      // 🔥 update state
+      setProducts((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, title: res.data.title } : item
+        )
+      );
+
+      alert("Produk berhasil diupdate!");
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  // ❌ DELETE PRODUCT
+  const deleteProduct = async (id) => {
+    try {
+      await axios.delete(`https://dummyjson.com/products/${id}`);
+
+      // 🔥 hapus dari UI
+      setProducts((prev) => prev.filter((item) => item.id !== id));
+
+      alert("Produk berhasil dihapus!");
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  // ✅ jalan saat berubah
   useEffect(() => {
-    fetchCarts();
+    fetchProducts();
+  }, [skip, search, sortBy, order, selectedCategory]);
+
+  // ✅ categories hanya sekali
+  useEffect(() => {
+    fetchCategories();
   }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
-      <h1 className="text-4xl font-bold mb-2 text-center">Shopping Cart</h1>
+      <h1 className="text-4xl font-bold mb-2 text-center">Product List</h1>
+
+      {/* 🔥 FORM */}
+      <ProductForm
+        title={title}
+        setTitle={setTitle}
+        price={price}
+        setPrice={setPrice}
+        addProduct={addProduct}
+      />
+      {/* 🔥 SEARCH */}
+      <SearchBar search={search} setSearch={setSearch} setSkip={setSkip} />
 
       <p className="text-gray-500 text-center mb-10">
-        View all items inside user carts
+        Browse products with pagination & search
       </p>
 
+      {/* 🔽 FILTER & SORT */}
+      <FilterSort
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        order={order}
+        setOrder={setOrder}
+        categories={categories}
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        setSkip={setSkip}
+      />
+
+      {/* 🔄 LOADING */}
       {loading ? (
         <div className="flex justify-center items-center h-64">
           <motion.div
@@ -38,64 +182,16 @@ export default function DataUser() {
           />
         </div>
       ) : (
-        <div className="space-y-10">
-          {carts.map((cart) => (
-            <div key={cart.id} className="bg-white p-6 rounded-xl shadow-lg">
-              <h2 className="text-xl font-bold mb-4 text-blue-600">
-                Cart ID: {cart.id}
-              </h2>
-
-              <p className="text-gray-600 mb-6">
-                Total Quantity:{" "}
-                <span className="font-semibold">
-                  {cart.products.reduce(
-                    (sum, product) => sum + product.quantity,
-                    0
-                  )}
-                </span>
-              </p>
-
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {cart.products.map((product) => (
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    key={product.id}
-                    className="border rounded-xl p-4 shadow-sm bg-gray-50"
-                  >
-                    <img
-                      src={product.thumbnail}
-                      alt={product.title}
-                      className="w-full h-40 object-cover rounded-lg mb-3"
-                    />
-
-                    <h3 className="font-bold text-lg mb-1">{product.title}</h3>
-
-                    <p className="text-gray-500">
-                      Price:
-                      <span className="text-green-600 font-semibold ml-1">
-                        ${product.price}
-                      </span>
-                    </p>
-
-                    <p className="text-gray-500">
-                      Quantity:
-                      <span className="text-blue-600 font-semibold ml-1">
-                        {product.quantity}
-                      </span>
-                    </p>
-
-                    <p className="text-gray-500">
-                      Total:
-                      <span className="text-red-600 font-semibold ml-1">
-                        ${product.total}
-                      </span>
-                    </p>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+        <DataUserStyale
+          carts={[]}
+          products={products}
+          onNext={handleNext}
+          onPrev={handlePrev}
+          skip={skip}
+          limit={limit}
+          onUpdate={updateProduct}
+          onDelete={deleteProduct}
+        />
       )}
     </div>
   );
